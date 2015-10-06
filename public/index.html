@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Probably always a good idea to be utf-8 -->
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <!-- So iPads can view the app in full screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- This prevents Internet Explorer from entering 'quirks' mode -->
+    <meta content='IE=edge' http-equiv='X-UA-Compatible'>
+    <meta name="description" content="Web interface to the BD2050: Bangladesh Energy and Emissions Pathways Calculator">
+    <meta name="keywords" content="Bangladesh, Energy, Emissions, 2050, Food, Landuse, Electricity, Fossil fuel, CO2, coal, nuclear, solar, bioenergy, photovoltaics">
+    <meta name="author" content="Monjur Mourshed">
+    
+    <!-- Load Google Web font -->
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <title>BD2050: Bangladesh Energy and Emissions Pathways Calculator</title>
+    
+    <!-- assets is a function definied in the Helper module in src/server.rb --> 
+    <link href='/assets/application-b638a07d75989cf5504fa037b6bf2ec1.css' media='screen' rel='stylesheet' type='text/css' />
+    <script async src='/assets/application-0c4e8669a57d4568e9f40f72c8bf2180.js' type='text/javascript'></script>
+    
+    <!-- Google analytics code for BD2050-->
+    <script>
+     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+     ga('create', 'UA-58652133-1', 'auto');
+     ga('require', 'displayfeatures');
+     ga('send', 'pageview');
+    </script>
+  </head>
+  <body>
+
+    <div id='topbar'>
+      <div id='name'>
+        <a href='http://www.bd2050.org/'><i class="fa fa-globe"></i>&nbsp;BD2050</a>
+      </div>
+
+      <div id='examples'>
+        <a class='newdropdown' data-dropdown='#savedpathway_choices' href='#'>Examples</a>
+        <!-- the contents of this dropdown is defined in the #savedpathway_choices div below -->
+      </div>
+
+      <!-- To add or remove views from the web tool, alter the following section -->
+      <div id='views'>
+        <a class='view' data-view='primary_energy_chart' href='#'>Energy</a>
+        <a class='view' data-view='electricity' href='#'>Electricity</a>
+        <!-- <a class='view' data-view='energy_security' href='#'>Security</a> -->
+        <a href='http://www.bd2050.org/docs'>Docs</a>
+        <a href='http://www.bd2050.org/community'>Community</a>
+      </div>
+    </div>
+
+<!--    <div class='dropdown' id='cost_choices'>
+      <a class='view' data-view='costs_in_context' href='#'>In context</a>
+      <a class='view' data-view='costs_compared_overview' href='#'>Compared</a>
+      <a class='view' data-view='costs_sensitivity' href='#'>Sensitivity</a>
+    </div> -->
+
+    <div class='dropdown' id='savedpathway_choices'>
+      <!-- These are taken from the underlying spreadsheet -->
+      
+        <a href='#' onclick="twentyfifty.switchPathway('4444444444444444444414111111111111111111000');$('ul#savedpathway_choices').toggle()">Max supply</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('1111111111111111111111444444444444441111000');$('ul#savedpathway_choices').toggle()">Min demand</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('4444111111111411111111111111111111114114000');$('ul#savedpathway_choices').toggle()">Max fossil fuels</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('1111144444444411111111111111111111111114000');$('ul#savedpathway_choices').toggle()">Max renewable</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('1111111111111144411111111111111111114114000');$('ul#savedpathway_choices').toggle()">Max imports</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('4444444444444444411111114444444444444114000');$('ul#savedpathway_choices').toggle()">Max supply, min demand</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('2222222222222222222222222222222222222222000');$('ul#savedpathway_choices').toggle()">All level 2</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('3333333333333333333333333333333333333333000');$('ul#savedpathway_choices').toggle()">All level 3</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('4444444444444444444444444444444444444444000');$('ul#savedpathway_choices').toggle()">All level 4</a>
+      
+        <a href='#' onclick="twentyfifty.switchPathway('2222222222222444444444444444444444443444000');$('ul#savedpathway_choices').toggle()">High GDP and population - current policy</a>
+      
+      <!-- Change this to point to your local website -->
+      <a href='http://www.bd2050.org/wiki'>More&hellip;</a>
+    </div>
+    <!-- This appears while the tool is waiting for data from the server -->
+    <div id='calculating'>
+      <span><i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp;&nbsp;&nbsp;<b>Calculating</b>&nbsp;</span>
+    </div>
+    <!-- / The charts will be drawn in this block -->
+    <div id='results'></div>
+    <!-- / These are the controls -->
+    <div id='classic_controls'>
+      <!-- The left column -->
+      <div id='demand'>
+        <table>
+          <!-- One row per choice -->
+          
+            <tr class='incremental' id='r21'>
+              <td class='name'>
+                <a href='/assets/onepage/22.pdf' target='_new' data-choicenumber='21'>
+                  Solar panels for hot water
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/22.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='21' data-choicelevel='1' id='c21l1' title='0 m2 of Hot Water Panels per household' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='21' data-choicelevel='2' id='c21l2' title='1 m2 of Hot Water Panels per household' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='21' data-choicelevel='3' id='c21l3' title='2 m2 of Hot Water Panels per household' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='21' data-choicelevel='4' id='c21l4' title='4 m2 of Hot Water Panels per household' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r22'>
+              <td class='name'>
+                <a href='/assets/onepage/25.pdf' target='_new' data-choicenumber='22'>
+                  Farm power Index
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/25.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='22' data-choicelevel='1' id='c22l1' title='Farm Power increases by 157%' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='22' data-choicelevel='2' id='c22l2' title='Farm Power increases by 233%' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='22' data-choicelevel='3' id='c22l3' title='Farm Power increases by 309%' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='22' data-choicelevel='4' id='c22l4' title='Farm Power increases by 384%' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r23'>
+              <td class='name'>
+                <a href='/assets/onepage/26.pdf' target='_new' data-choicenumber='23'>
+                  Agricultural fuel mix
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/26.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='23' data-choicelevel='1' id='c23l1' title='8% of farm work is electric, 0% is solar powered' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='23' data-choicelevel='2' id='c23l2' title='60% of farm work is electric, 8% is solar powered' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='23' data-choicelevel='3' id='c23l3' title='80% of farm work is electric, 8% is solar powered' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='23' data-choicelevel='4' id='c23l4' title='40% of farm work is electric, 50% is solar powered' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r24'>
+              <td class='name'>
+                <a href='/assets/onepage/27.pdf' target='_new' data-choicenumber='24'>
+                  Domestic transport Policy
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/27.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='24' data-choicelevel='1' id='c24l1' title='Public transport policy emphasises Cars' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='24' data-choicelevel='2' id='c24l2' title='Public transport policy emphasises Motorbikes' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='24' data-choicelevel='3' id='c24l3' title='Public transport policy emphasises Buses' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='24' data-choicelevel='4' id='c24l4' title='Public transport policy emphasises Rail' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r25'>
+              <td class='name'>
+                <a href='/assets/onepage/28.pdf' target='_new' data-choicenumber='25'>
+                  Shift to zero emission transport
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/28.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='25' data-choicelevel='1' id='c25l1' title='ICE dominates, CNG fades away, no zero emission transport 0% of road freight and 0% of rail freight electrified. Diesel engines 1x as efficient from present.' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='25' data-choicelevel='2' id='c25l2' title='CNG Dominates 0% of road freight and 25% of rail freight electrified. Diesel engines 2x as efficient from present.' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='25' data-choicelevel='3' id='c25l3' title='Push to Zero Emissions 0% of road freight and 50% of rail freight electrified. Diesel engines 2x as efficient from present.' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='25' data-choicelevel='4' id='c25l4' title='Complete Push to Zero Emissions 5% of road freight and 75% of rail freight electrified. Diesel engines 3x as efficient from present.' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r26'>
+              <td class='name'>
+                <a href='/assets/onepage/29.pdf' target='_new' data-choicenumber='26'>
+                  Choice of fuel cells or batteries
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/29.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='26' data-choicelevel='1' id='c26l1' title='100% of zero emission vehicles are Electric. 0% of zero emission vehicles are Fuel Cell.' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='26' data-choicelevel='2' id='c26l2' title='80% of zero emission vehicles are Electric. 20% of zero emission vehicles are Fuel Cell.' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='26' data-choicelevel='3' id='c26l3' title='20% of zero emission vehicles are Electric. 80% of zero emission vehicles are Fuel Cell.' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='26' data-choicelevel='4' id='c26l4' title='0% of zero emission vehicles are Electric. 100% of zero emission vehicles are Fuel Cell.' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r27'>
+              <td class='name'>
+                <a href='/assets/onepage/30.pdf' target='_new' data-choicenumber='27'>
+                  Shift Freight off roads
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/30.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='27' data-choicelevel='1' id='c27l1' title='By 2050, 0.2% of domestic freight is carried by Rail and 0.8% by Water' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='27' data-choicelevel='2' id='c27l2' title='By 2050, 5% of domestic freight is carried by Rail and 10% by Water' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='27' data-choicelevel='3' id='c27l3' title='By 2050, 15% of domestic freight is carried by Rail and 20% by Water' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='27' data-choicelevel='4' id='c27l4' title='By 2050, 25% of domestic freight is carried by Rail and 25% by Water' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r28'>
+              <td class='name'>
+                <a href='/assets/onepage/31.pdf' target='_new' data-choicenumber='28'>
+                  International aviation
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/31.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='28' data-choicelevel='1' id='c28l1' title='Occupancy per international flight increases from 53 to 110' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='28' data-choicelevel='2' id='c28l2' title='Occupancy per international flight increases from 53 to 145' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='28' data-choicelevel='3' id='c28l3' title='Occupancy per international flight increases from 53 to 178' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='28' data-choicelevel='4' id='c28l4' title='Occupancy per international flight increases from 53 to 220' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r29'>
+              <td class='name'>
+                <a href='/assets/onepage/32.pdf' target='_new' data-choicenumber='29'>
+                  International shipping
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/32.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='29' data-choicelevel='1' id='c29l1' title='Shipping fuel use increases 18 times to 74,000 barrels of oil a day' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='29' data-choicelevel='2' id='c29l2' title='Shipping fuel use increases 24 times to 100,000 barrels of oil a day' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='29' data-choicelevel='3' id='c29l3' title='Shipping fuel use increases 33 times to 133,000 barrels of oil a day' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='29' data-choicelevel='4' id='c29l4' title='Shipping fuel use increases 33 times to 133,000 barrels of oil a day' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r30'>
+              <td class='name'>
+                <a href='/assets/onepage/33.pdf' target='_new' data-choicenumber='30'>
+                  Urban: Lighting and appliances
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/33.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='30' data-choicelevel='1' id='c30l1' title='By 2050, public education will reduce urban electricity demand by 0%. 35% of bulbs are CFL or better.' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='30' data-choicelevel='2' id='c30l2' title='By 2050, public education will reduce urban electricity demand by 18%. 30% of bulbs are CFL or better.' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='30' data-choicelevel='3' id='c30l3' title='By 2050, public education will reduce urban electricity demand by 33%. 95% of bulbs are CFL or better.' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='30' data-choicelevel='4' id='c30l4' title='By 2050, public education will reduce urban electricity demand by 59%. 90% of bulbs are CFL or better.' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r31'>
+              <td class='name'>
+                <a href='/assets/onepage/34.pdf' target='_new' data-choicenumber='31'>
+                  Rural: Lighting and appliances
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/34.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='31' data-choicelevel='1' id='c31l1' title='By 2050, public education will reduce rural electricity demand by 0%. 35% of bulbs are CFL or better.' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='31' data-choicelevel='2' id='c31l2' title='By 2050, public education will reduce rural electricity demand by 9%. 30% of bulbs are CFL or better.' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='31' data-choicelevel='3' id='c31l3' title='By 2050, public education will reduce rural electricity demand by 16%. 95% of bulbs are CFL or better.' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='31' data-choicelevel='4' id='c31l4' title='By 2050, public education will reduce rural electricity demand by 30%. 90% of bulbs are CFL or better.' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r32'>
+              <td class='name'>
+                <a href='/assets/onepage/35.pdf' target='_new' data-choicenumber='32'>
+                  Industry output growth
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/35.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='32' data-choicelevel='1' id='c32l1' title='Industry Focuses on Food, Beverages and Paper Products' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='32' data-choicelevel='2' id='c32l2' title='Industry Focuses on Natural Fabrics and Wood Products' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='32' data-choicelevel='3' id='c32l3' title='Industry Focuses on Metal and Metal Products' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='32' data-choicelevel='4' id='c32l4' title='Industry Focuses on Chemicals, Ceramics, Telecom Infrastructure' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r33'>
+              <td class='name'>
+                <a href='/assets/onepage/36.pdf' target='_new' data-choicenumber='33'>
+                  Energy technology in industry
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/36.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='33' data-choicelevel='1' id='c33l1' title='Industry uses more Electricity' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='33' data-choicelevel='2' id='c33l2' title='Industry uses more Solid and Liquid Fuels' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='33' data-choicelevel='3' id='c33l3' title='Industry uses more Gaseuous Fuels' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='33' data-choicelevel='4' id='c33l4' title='Industry uses more Solar Heating' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r34'>
+              <td class='name'>
+                <a href='/assets/onepage/37.pdf' target='_new' data-choicenumber='34'>
+                  Commercial demand for cooling
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/37.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='34' data-choicelevel='1' id='c34l1' title='Energy demand for cooling increases 2421% by 2050' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='34' data-choicelevel='2' id='c34l2' title='Energy demand for cooling increases 1614% by 2050' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='34' data-choicelevel='3' id='c34l3' title='Energy demand for cooling increases 754% by 2050' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='34' data-choicelevel='4' id='c34l4' title='Energy demand for cooling increases 40% by 2050' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r35'>
+              <td class='name'>
+                <a href='/assets/onepage/38.pdf' target='_new' data-choicenumber='35'>
+                  Commercial lighting and appliances
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/38.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='35' data-choicelevel='1' id='c35l1' title='Energy demand for lighting and appliances increases 358% by 2050' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='35' data-choicelevel='2' id='c35l2' title='Energy demand for lighting and appliances increases 267% by 2050' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='35' data-choicelevel='3' id='c35l3' title='Energy demand for lighting and appliances increases 199% by 2050' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='35' data-choicelevel='4' id='c35l4' title='Energy demand for lighting and appliances increases 136% by 2050' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r36'>
+              <td class='name'>
+                <a href='/assets/onepage/41.pdf' target='_new' data-choicenumber='36'>
+                  Fertility and population growth
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/41.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='36' data-choicelevel='1' id='c36l1' title='Population increases from 151million in 2010 to 241million in 2050. This is a 1.59x increase' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='36' data-choicelevel='2' id='c36l2' title='Population increases from 151million in 2010 to 236million in 2050. This is a 1.56x increase' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='36' data-choicelevel='3' id='c36l3' title='Population increases from 151million in 2010 to 202million in 2050. This is a 1.34x increase' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='36' data-choicelevel='4' id='c36l4' title='Population increases from 151million in 2010 to 172million in 2050. This is a 1.14x increase' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r37'>
+              <td class='name'>
+                <a href='/assets/onepage/42.pdf' target='_new' data-choicenumber='37'>
+                  Protein Source
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/42.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='37' data-choicelevel='1' id='c37l1' title='The main protein source is Meat' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='37' data-choicelevel='2' id='c37l2' title='The main protein source is Dairy' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='37' data-choicelevel='3' id='c37l3' title='The main protein source is Fish' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='37' data-choicelevel='4' id='c37l4' title='The main protein source is Veg' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r38'>
+              <td class='name'>
+                <a href='/assets/onepage/43.pdf' target='_new' data-choicenumber='38'>
+                  Nutrition Intake
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/43.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='38' data-choicelevel='1' id='c38l1' title='Daily kCal increases to 2436 by 2030 and 2436 by 2050' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='38' data-choicelevel='2' id='c38l2' title='Daily kCal increases to 2706 by 2030 and 3006 by 2050' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='38' data-choicelevel='3' id='c38l3' title='Daily kCal increases to 2832 by 2030 and 3006 by 2050' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='38' data-choicelevel='4' id='c38l4' title='Daily kCal increases to 2931 by 2030 and 3006 by 2050' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r39'>
+              <td class='name'>
+                <a href='/assets/onepage/44.pdf' target='_new' data-choicenumber='39'>
+                  Growth in gross domestic product
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/44.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='39' data-choicelevel='1' id='c39l1' title='GDP increases from US(2010) $100billion in 2010 to US(2010) $1025billion in 2050. This is a 10.29x increase The increase in GDP suggests a 13.44x increase in base domestic electricity demand' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='39' data-choicelevel='2' id='c39l2' title='GDP increases from US(2010) $100billion in 2010 to US(2010) $1688billion in 2050. This is a 16.94x increase The increase in GDP suggests a 22.35x increase in base domestic electricity demand' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='39' data-choicelevel='3' id='c39l3' title='GDP increases from US(2010) $100billion in 2010 to US(2010) $2774billion in 2050. This is a 27.82x increase The increase in GDP suggests a 36.94x increase in base domestic electricity demand' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='39' data-choicelevel='4' id='c39l4' title='GDP increases from US(2010) $100billion in 2010 to US(2010) $4512billion in 2050. This is a 45.26x increase The increase in GDP suggests a 60.3x increase in base domestic electricity demand' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+        </table>
+      </div>
+      <!-- The middle column -->
+      <div id='supply'>
+        <table>
+          
+            <tr class='incremental' id='r0'>
+              <td class='name'>
+                <a href='/assets/onepage/1.pdf' target='_new' data-choicenumber='0'>
+                  Coal power capacity
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/1.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='0' data-choicelevel='1' id='c0l1' title='0 GW of new coal power plants built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='0' data-choicelevel='2' id='c0l2' title='32 GW of new coal power plants built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='0' data-choicelevel='3' id='c0l3' title='51 GW of new coal power plants built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='0' data-choicelevel='4' id='c0l4' title='107 GW of new coal power plants built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r1'>
+              <td class='name'>
+                <a href='/assets/onepage/2.pdf' target='_new' data-choicenumber='1'>
+                  Coal power technology
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/2.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='1' data-choicelevel='1' id='c1l1' title='30% of new plants use Integrated Gasification Combined Cycle (IGCC), 30% use Ultra-Super Critical (USC)' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='1' data-choicelevel='2' id='c1l2' title='50% of new plants use Integrated Gasification Combined Cycle (IGCC), 40% use Ultra-Super Critical (USC)' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='1' data-choicelevel='3' id='c1l3' title='65% of new plants use Integrated Gasification Combined Cycle (IGCC), 30% use Ultra-Super Critical (USC)' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='1' data-choicelevel='4' id='c1l4' title='80% of new plants use Integrated Gasification Combined Cycle (IGCC), 20% use Ultra-Super Critical (USC)' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r2'>
+              <td class='name'>
+                <a href='/assets/onepage/3.pdf' target='_new' data-choicenumber='2'>
+                  Gas power stations
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/3.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='2' data-choicelevel='1' id='c2l1' title='0 GW of new gas power plants built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='2' data-choicelevel='2' id='c2l2' title='4 GW of new gas power plants built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='2' data-choicelevel='3' id='c2l3' title='20 GW of new gas power plants built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='2' data-choicelevel='4' id='c2l4' title='48 GW of new gas power plants built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r3'>
+              <td class='name'>
+                <a href='/assets/onepage/4.pdf' target='_new' data-choicenumber='3'>
+                  Liquid fuel power stations
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/4.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='3' data-choicelevel='1' id='c3l1' title='2 GW of new petro power plants built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='3' data-choicelevel='2' id='c3l2' title='2 GW of new petro power plants built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='3' data-choicelevel='3' id='c3l3' title='1 GW of new petro power plants built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='3' data-choicelevel='4' id='c3l4' title='19 GW of new petro power plants built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r4'>
+              <td class='name'>
+                <a href='/assets/onepage/5.pdf' target='_new' data-choicenumber='4'>
+                  Nuclear power stations
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/5.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='4' data-choicelevel='1' id='c4l1' title='0 GW of new nuclear power plants built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='4' data-choicelevel='2' id='c4l2' title='0 GW of new nuclear power plants built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='4' data-choicelevel='3' id='c4l3' title='1 GW of new nuclear power plants built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='4' data-choicelevel='4' id='c4l4' title='2 GW of new nuclear power plants built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r5'>
+              <td class='name'>
+                <a href='/assets/onepage/6.pdf' target='_new' data-choicenumber='5'>
+                  Offshore wind
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/6.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='5' data-choicelevel='1' id='c5l1' title='0 GW of new Offshore Wind built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='5' data-choicelevel='2' id='c5l2' title='6 GW of new Offshore Wind built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='5' data-choicelevel='3' id='c5l3' title='13 GW of new Offshore Wind built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='5' data-choicelevel='4' id='c5l4' title='19 GW of new Offshore Wind built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r6'>
+              <td class='name'>
+                <a href='/assets/onepage/7.pdf' target='_new' data-choicenumber='6'>
+                  Onshore wind
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/7.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='6' data-choicelevel='1' id='c6l1' title='0 GW of new Onshore Wind built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='6' data-choicelevel='2' id='c6l2' title='0.2 GW of new Onshore Wind built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='6' data-choicelevel='3' id='c6l3' title='0.4 GW of new Onshore Wind built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='6' data-choicelevel='4' id='c6l4' title='0.6 GW of new Onshore Wind built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r7'>
+              <td class='name'>
+                <a href='/assets/onepage/8.pdf' target='_new' data-choicenumber='7'>
+                  Small-scale wind
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/8.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='7' data-choicelevel='1' id='c7l1' title='0 GW of new small scale Wind built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='7' data-choicelevel='2' id='c7l2' title='0.2 GW of new small scale Wind built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='7' data-choicelevel='3' id='c7l3' title='0.3 GW of new small scale Wind built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='7' data-choicelevel='4' id='c7l4' title='0.7 GW of new small scale Wind built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r8'>
+              <td class='name'>
+                <a href='/assets/onepage/9.pdf' target='_new' data-choicenumber='8'>
+                  Wave
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/9.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='8' data-choicelevel='1' id='c8l1' title='0 GW of new Wave power built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='8' data-choicelevel='2' id='c8l2' title='0 GW of new Wave power built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='8' data-choicelevel='3' id='c8l3' title='1 GW of new Wave power built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='8' data-choicelevel='4' id='c8l4' title='4 GW of new Wave power built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r9'>
+              <td class='name'>
+                <a href='/assets/onepage/10.pdf' target='_new' data-choicenumber='9'>
+                  Tidal range
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/10.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='9' data-choicelevel='1' id='c9l1' title='0 GW of new Tidal power built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='9' data-choicelevel='2' id='c9l2' title='0 GW of new Tidal power built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='9' data-choicelevel='3' id='c9l3' title='0.2 GW of new Tidal power built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='9' data-choicelevel='4' id='c9l4' title='0.3 GW of new Tidal power built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r10'>
+              <td class='name'>
+                <a href='/assets/onepage/11.pdf' target='_new' data-choicenumber='10'>
+                  Solar panels for electricity
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/11.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='10' data-choicelevel='1' id='c10l1' title='0 GW of new solar power built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='10' data-choicelevel='2' id='c10l2' title='49 GW of new solar power built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='10' data-choicelevel='3' id='c10l3' title='99 GW of new solar power built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='10' data-choicelevel='4' id='c10l4' title='198 GW of new solar power built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r11'>
+              <td class='name'>
+                <a href='/assets/onepage/12.pdf' target='_new' data-choicenumber='11'>
+                  Geothermal electricity
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/12.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='11' data-choicelevel='1' id='c11l1' title='0 GW of new geothermal power built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='11' data-choicelevel='2' id='c11l2' title='0 GW of new geothermal power built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='11' data-choicelevel='3' id='c11l3' title='1 GW of new geothermal power built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='11' data-choicelevel='4' id='c11l4' title='2 GW of new geothermal power built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r12'>
+              <td class='name'>
+                <a href='/assets/onepage/13.pdf' target='_new' data-choicenumber='12'>
+                  Hydroelectric power stations
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/13.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='12' data-choicelevel='1' id='c12l1' title='0 GW of new Hydroelectric power built' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='12' data-choicelevel='2' id='c12l2' title='0.1 GW of new Hydroelectric power built' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='12' data-choicelevel='3' id='c12l3' title='0.2 GW of new Hydroelectric power built' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='12' data-choicelevel='4' id='c12l4' title='0.3 GW of new Hydroelectric power built' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r13'>
+              <td class='name'>
+                <a href='/assets/onepage/14.pdf' target='_new' data-choicenumber='13'>
+                  Access to electricity grid
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/14.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='13' data-choicelevel='1' id='c13l1' title='By 2050, 93% of Urban and  57% of Rural househoulds electrified' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='13' data-choicelevel='2' id='c13l2' title='By 2050, 97% of Urban and  84% of Rural househoulds electrified' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='13' data-choicelevel='3' id='c13l3' title='By 2050, 100% of Urban and  84% of Rural househoulds electrified' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='13' data-choicelevel='4' id='c13l4' title='By 2050, 100% of Urban and  84% of Rural househoulds electrified' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r14'>
+              <td class='name'>
+                <a href='/assets/onepage/15.pdf' target='_new' data-choicenumber='14'>
+                  Electricity imports
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/15.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='14' data-choicelevel='1' id='c14l1' title='0 GW electricity imports (0TWh each year)' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='14' data-choicelevel='2' id='c14l2' title='0 GW electricity imports (4.38TWh each year)' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='14' data-choicelevel='3' id='c14l3' title='1 GW electricity imports (8.77TWh each year)' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='14' data-choicelevel='4' id='c14l4' title='2 GW electricity imports (17.53TWh each year)' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r15'>
+              <td class='name'>
+                <a href='/assets/onepage/16.pdf' target='_new' data-choicenumber='15'>
+                  Gas imports
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/16.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='15' data-choicelevel='1' id='c15l1' title='0% of gas demand imported' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='15' data-choicelevel='2' id='c15l2' title='33% of gas demand imported' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='15' data-choicelevel='3' id='c15l3' title='66% of gas demand imported' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='15' data-choicelevel='4' id='c15l4' title='100% of gas demand imported' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r16'>
+              <td class='name'>
+                <a href='/assets/onepage/17.pdf' target='_new' data-choicenumber='16'>
+                  Coal imports
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/17.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='16' data-choicelevel='1' id='c16l1' title='0% of coal demand imported' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='16' data-choicelevel='2' id='c16l2' title='33% of coal demand imported' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='16' data-choicelevel='3' id='c16l3' title='66% of coal demand imported' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='16' data-choicelevel='4' id='c16l4' title='100% of coal demand imported' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r17'>
+              <td class='name'>
+                <a href='/assets/onepage/18.pdf' target='_new' data-choicenumber='17'>
+                  Bioenergy from marginal land
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/18.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='17' data-choicelevel='1' id='c17l1' title='73,000 ha marginal land converted to plantations, 45,000 ha Mangroves established and 0,000 ha wetlands used for Water Hyacinth' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='17' data-choicelevel='2' id='c17l2' title='0,000 ha marginal land converted to plantations, 110,000 ha Mangroves established and 0,000 ha wetlands used for Water Hyacinth' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='17' data-choicelevel='3' id='c17l3' title='0,000 ha marginal land converted to plantations, 369,000 ha Mangroves established and 286,000 ha wetlands used for Water Hyacinth' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='17' data-choicelevel='4' id='c17l4' title='1786,000 ha marginal land converted to plantations, 436,000 ha Mangroves established and 952,000 ha wetlands used for Water Hyacinth' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r18'>
+              <td class='name'>
+                <a href='/assets/onepage/19.pdf' target='_new' data-choicenumber='18'>
+                  Bioenergy from agri land
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/19.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='18' data-choicelevel='1' id='c18l1' title='By 2050, 0% of Agricultural land is used for Bioenergy Crops' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='18' data-choicelevel='2' id='c18l2' title='By 2050, 10% of Agricultural land is used for Bioenergy Crops' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='18' data-choicelevel='3' id='c18l3' title='By 2050, 50% of Agricultural land is used for Bioenergy Crops' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='18' data-choicelevel='4' id='c18l4' title='By 2050, 100% of Agricultural land is used for Bioenergy Crops' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r19'>
+              <td class='name'>
+                <a href='/assets/onepage/20.pdf' target='_new' data-choicenumber='19'>
+                  End use bionenergy
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/20.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='19' data-choicelevel='1' id='c19l1' title='Solid Fuel Focus using 70% of the available fuels' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='19' data-choicelevel='2' id='c19l2' title='Electricity Focus using 70% of the available fuels' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='19' data-choicelevel='3' id='c19l3' title='Liquid Fuels Focus using 70% of the available fuels' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='19' data-choicelevel='4' id='c19l4' title='SNG focus using 70% of the available fuels' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+            <tr class='incremental' id='r20'>
+              <td class='name'>
+                <a href='/assets/onepage/21.pdf' target='_new' data-choicenumber='20'>
+                  Waste to Energy Conversion
+                </a>
+              </td>
+              <td class='help'>
+                <a title='Click for more detail on what choices 1 2 3 4 mean.' href='/assets/onepage/21.pdf' target='_new'><i class="fa fa-question-circle"></i></a>
+              </td>
+              <!-- One cell per level for that choice -->
+              
+                <td class='choice'>
+                  <a href='#' data-choicenumber='20' data-choicelevel='1' id='c20l1' title='' class='choiceLink' >
+                    1
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='20' data-choicelevel='2' id='c20l2' title='' class='choiceLink' >
+                    2
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='20' data-choicelevel='3' id='c20l3' title='' class='choiceLink' >
+                    3
+                </a>
+              </td>
+            
+                <td class='choice'>
+                  <a href='#' data-choicenumber='20' data-choicelevel='4' id='c20l4' title='' class='choiceLink' >
+                    4
+                </a>
+              </td>
+            
+            </tr>
+          
+        </table>
+      </div>
+      <!-- The right column -->
+      <div id='other'>
+        <table>
+          <!-- this should actually go up to choice 42, but that isn't ready for prime time yet -->
+          
+        </table>
+        <h4>Notes</h4>
+        <table id='notes'>
+          <tr><td id='firstcell'><div class='help'>?</div></td><td>Question marks take you to one page descriptions of each choice</td></tr>
+          <tr><td><div class='level1'>1</div></td><td>The least effort possible on this choice.</td></tr>
+          <tr><td><div class='level2'>2</div></td><td>Viewed as ambitious, but reasonable by most experts.</td></tr>
+          <tr><td><div class='level3'>3</div></td><td>Viewed as unlikely without significant change from the current system and/or significant technological breakthroughs</td></tr>
+          <tr><td><div class='level4'>4</div></td><td>The upper end of what is thought to be physically plausible by the most optimistic observer.</td></tr>
+          <tr><td><div class='alternate'>A</div>&ndash;<div class='alternate'>D</div></td><td>A range of options where one alternative is not neccesiarily harder than another</td></tr>
+          <tr class='primary_energy_notes'><td>Total supplied by the model<sup>1</sup></td><td>Primary energy supply is normally higher than final energy demand because of the energy used to generate electricity and energy conversion.</td></tr>
+          <tr class='primary_energy_notes'><td>Targets<sup>2</sup></td><td>The targets relate to 2 tCO<sub>2</sub> challenge. The targets are automatically adjusted for changes in population.</td></tr>
+          <tr class='primary_energy_notes'><td>Total<sup>3</sup></td><td>The total includes the reduction in emissions from growing new biomass to replace that used (the bioenergy credit).</td></tr> 
+      </table>
+      </div>
+    </div>
+    <!-- This is needed to show the tooltips, don't remove -->
+    <div id='tooltip'></div>
+    <div id='footer'>
+     <div id='social'>
+      <table>
+       <tr>
+        <td align='left'><a href="http://facebook.com/bd2050c"><i class="fa fa-facebook-square fa-2x"></i></a></td>
+        <td align='left'><a href="http://twitter.com/bd2050c"><i class="fa fa-twitter fa-2x"></i></a></td>
+        <td align='left'><a href="http://github.com/bd2050"><i class="fa fa-github-alt fa-2x"></i></a></td>
+        <td align='left'><i class="fa fa-pinterest fa-2x"></i></td>
+        <td align='left'><a href="plus.google.com/+MonjurMourshed/"><i class="fa fa-google-plus-square fa-2x"></i></a></td>
+        <td align='left'><a href="http://linkedin.com/in/mmourshed"><i class="fa fa-linkedin fa-2x"></i></a></td>
+        <td align='left'><i class="fa fa-reddit fa-2x"></i></td>
+        <td align='left'><i class="fa fa-youtube fa-2x"></i></td>
+        <td align='left'><i class="fa fa-vimeo-square fa-2x"></i></td>
+	   </tr>
+      </table>
+     </div>
+     <div id='copyright'>
+      <table>
+       <tr><td align='left'>Copyright <i class="fa fa-copyright"></i>&nbsp;2015 Monjur Mourshed, Cardiff University. All rights reserved.</td></tr>
+       <tr>
+        <td align='left'>
+         <a href="http://bd2050.org">BD2050</a> is free to use, modify and share. BD2050 is made possible by the <a href="http://2050-calculator-tool.decc.gov.uk/">DECC UK2050</a> project and other open source software; respective owners retain their copyrights.
+         Codebase for this website is available under <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL v3</a> from <a href="http://github.com/bd2050/Twenty-Fifty">Github</a>.
+         All assumptions and calculations of the underlying model are incorporated in a Microsoft&reg; EXCEL&reg; spreadsheet, available under <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL v3</a> from <a href="https://github.com/bd2050/twenty-fifty/tree/master/model/model.xlsx">Github</a>.
+         All remaining contents and publications are available under <a href="http://creativecommons.org/licenses/by/3.0/">CC by 3.0</a>.
+        </td>
+       </tr>
+      </table>
+     </div> 
+    </div>
+    <!-- The following html is only displayed on screen when a user selects a particular view -->
+    <div id='snippets'>
+      <!-- This is shown the first time a user visits a costs page -->
+      <div id='cost_caveats'>
+        We would like your help to develop this tool further. Please visit <a href="http://bd2050.org/forum">BD2050 Forum</a> to discuss and to find out more about our methodology and suggest improvements.  
+          <div id='understand'>
+            <a href="#" onclick="$.jStorage.set('CostCaveatShown',true);$('#cost_caveats').hide(); return false;">Click to continue using the calculator</a>
+          </div>
+        <div id="energysecurity">
+          <div id="balancing" class="column">
+            <h2>Balancing electricity supply and demand</h2>
+            <p id='autobuild_text'><span id='pathway_balancing_ccgt'></span> GW of conventional gas electricity generation plant has been assumed to have been built by 2050, to cover the gap between average electricity demand and the amount of low carbon generation selected in this pathway.</p>
+            <p>This tool does not model the hourly, daily or even seasonal operation of the electricity grid. It presents annual averages. Therefore it does not correctly represent the peaks and troughs of electricity demand.</p>
+            <p>To go some way to addressing this flaw, the tool applies a simulated stress test to your pathway of five cold, almost windless, days. This is described in more detail <a href="/assets/onepage/49.pdf" target="_new">here</a>. In this case, the stress test implies that <span id='pathway_balancing_peaking'></span> GW of additional peaking plant may be required for supply to meet demand over that period.</p>
+            <p>You can influence the amount of peaking plant by changing your choice level of 'storage, demand shifting &amp; interconnection' below right,or by reducing the amount of intermittent renewable generation, or by reducing the demand for electricity</p>
+          </div>
+          <div id="imports" class="column">
+            <h2>Dependence on imported energy</h2>
+            <p>The calculator assumes that any available biomass is preferred over fossil fuels and that domestically produced fuels are preferred over imports.It assumes that fossil fuels are imported to cover any shortfall.</p>
+            <table id="imports">
+              <tr><th class="description"></th><th colspan="2" class="year">2007</th><th></th><th colspan="2" class="year">2050</th></tr>
+              <tr><th class="description">Imports</th><th class="value">TWh/yr</th><th class="value">%</th><th></th><th class="value">TWh/yr</th><th class="value">%</th></tr>
+            </table>
+          </div>
+          <div id="diversity" class="column">
+            <h2>Diversity of energy sources</h2>
+            <p>There may be a benefit from maintaining a diversity of energy sources:</p>
+            <table id="diversity">
+              <tbody>
+              <tr><th class="description">Proportion of energy supply</th><th class="year">2007</th><th></th><th class="year">2050</th></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="clear"></div>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>
